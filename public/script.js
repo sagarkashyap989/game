@@ -20,13 +20,13 @@ let score = 0;
 // });
 
 
-let seq = []
+let seq = [3]
 let userClickedPattern = []
 
 
 levelTitle.addEventListener('click', () =>{
   
-  // socket.emit('add-seq', roomName, 3)
+  socket.emit('add-seq', roomName, 3)
 })
 if (messageForm != null) {
   const name = prompt('What is your name?')
@@ -67,7 +67,7 @@ socket.on('user-disconnected', name => {
 socket.on('seq-added', data => {
 
   playSound(colors[data[data.length-1]])
-  seq = [...data]
+  seq = [3, ...data]
   if(seq.length%2+1 != Number(userId)){
     
     overlay.classList.remove('no-click')
