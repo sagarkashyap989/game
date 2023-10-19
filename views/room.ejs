@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,8 @@
   <title>Chat App</title>
   <script>
     const roomName = "<%= roomName %>"
+    const userId = "<%= userId %>"
+
   </script>
   <script defer src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script defer src="script.js"></script>
@@ -14,44 +17,119 @@
     body {
       padding: 0;
       margin: 0;
+    }
+
+    #message-container {
+      border: 1px solid;
+      padding: 7px;
+      height: 206px;
+      overflow-y: scroll;
+      width:100%;
+      background-color: #3b3a3aa6;
+    }
+
+    #message-container div {
+      color: white;
+    }
+
+    #message-container div:nth-child(2n) {}
+
+    #send-container {}
+
+    #message-input {}
+
+    .wrapper {
+      background: black;
       display: flex;
       justify-content: center;
     }
 
-    #message-container {
-      width: 80%;
-      max-width: 1200px;
-    }
-
-    #message-container div {
-      background-color: #CCC;
-      padding: 5px;
-    }
-
-    #message-container div:nth-child(2n) {
-      background-color: #FFF;
-    }
-
-    #send-container {
-      position: fixed;
-      padding-bottom: 30px;
-      bottom: 0;
-      background-color: white;
-      max-width: 1200px;
-      width: 80%;
+    .form-wrapper {
+      width: 30vw;
       display: flex;
+      align-items: center;
+      flex-direction: column;
+      justify-content: space-evenly
+
     }
 
-    #message-input {
-      flex-grow: 1;
+    .form-btns {
+      display: flex;
+      justify-content: center;
+    }
+
+    .score {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 30vw;
+      color:green
+    }
+
+    .main-btns {
+      width: 30vw;
     }
   </style>
+
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <div id="message-container"></div>
-  <form id="send-container">
-    <input type="text" id="message-input">
-    <button type="submit" id="send-button">Send</button>
-  </form>
+
+
+<body class="background" id="body">
+
+  
+
+
+  <a id="how" href="https://www.youtube.com/watch?v=1Yqj76Q4jJ4">
+    <h3>How To Play?</h3>
+  </a>
+  <div id="refresh" class="">
+    <img src="r.png" alt="" height="47" width="57">
+
+  </div>
+
+  <div class="form-btns">
+    <div class="score">
+      <h1 id="score">100+</h1>
+    </div>
+    <div class="main-btns" id="overlay">
+      <h1 id="level-title">Click anywhere to Start</h1>
+      <div class="container margin">
+        <div lass="row">
+
+          <div type="button" id="green" class=" btn  button   green   ">
+
+          </div>
+
+          <div type="button" id="red" class=" btn    button red">
+
+          </div>
+        </div>
+
+        <div class="row">
+
+          <div type="button" id="yellow" class="btn yellow    button   ">
+
+          </div>
+          <div type="button" id="blue" class=" btn blue  button ">
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+
+    <div class="form-wrapper">
+      <div id="message-container"></div>
+      <form id="send-container">
+        <input type="text" id="message-input">
+        <button type="submit" id="send-button">Send</button>
+      </form>
+    </div>
+  </div>
+
 </body>
+
 </html>

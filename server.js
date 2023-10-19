@@ -18,7 +18,7 @@ app.post('/room', (req, res) => {
   if (rooms[req.body.room] != null) {
     return res.redirect('/')
   }
-  rooms[req.body.room] = { users: {} }
+  rooms[req.body.room] = { users: {}, sequence : [] }
   res.redirect(req.body.room)
   // Send message that new room was created
   io.emit('room-created', req.body.room)
@@ -28,16 +28,43 @@ app.get('/:room', (req, res) => {
   if (rooms[req.params.room] == null) {
     return res.redirect('/')
   }
-  res.render('room', { roomName: req.params.room })
+  const roo1m = io.sockets.adapter.rooms[req.params.room];
+    // console.log(roo1m)
+    const numberOfUsers = roo1m ? roo1m.length : 0;
+  res.render('room', { roomName: req.params.room, userId:numberOfUsers+1 })
 })
 
 server.listen(3000)
 
 io.on('connection', socket => {
+
+
+  socket.on('add-seq', (room, seq) => {
+    // console.log( rooms[room])
+    // console.log(room, seq)
+    rooms[room].sequence.push(seq)
+
+    console.log(rooms)
+    socket.to(room).broadcast.emit('seq-added',rooms[room].sequence )
+  })
+  socket.on('del-seq', (room, seq) => {
+    // console.log( rooms[room])
+    // console.log(room, seq)
+    rooms[room].sequence = []
+
+  })
+
+
+
   socket.on('new-user', (room, name) => {
     socket.join(room)
     rooms[room].users[socket.id] = name
-    socket.to(room).broadcast.emit('user-connected', name)
+    // console.log(rooms)
+    const roo1m = io.sockets.adapter.rooms[room];
+    // console.log(roo1m)
+    const numberOfUsers = roo1m ? roo1m.length : 0;
+    // console.log(`Users in room ${roo1m}: ${numberOfUsers}`);
+    socket.to(room).broadcast.emit('user-connected', name,numberOfUsers )
   })
   socket.on('send-chat-message', (room, message) => {
     socket.to(room).broadcast.emit('chat-message', { message: message, name: rooms[room].users[socket.id] })
