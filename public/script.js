@@ -15,7 +15,7 @@ const levelTitle = document.getElementById('level-title')
 // var a = roomNamec
 // let userId;
 let score = 0;
-
+let user_soc;
 // $(document).ready(function () {
 // });
 
@@ -24,8 +24,8 @@ let seq = [3]
 let userClickedPattern = []
 
 
-levelTitle.addEventListener('click', () =>{
-  
+levelTitle.addEventListener('click', () => {
+
   socket.emit('add-seq', roomName, 3)
 })
 if (messageForm != null) {
@@ -42,6 +42,25 @@ if (messageForm != null) {
   })
 }
 
+
+
+socket.on('someone-lost', data => {
+  console.log(data, 'dream')
+  if (userId > data.userId) {
+    userId = userId - 1
+  }
+  appendMessage(`${data.name}: ${data.message}`, 'lost-title')
+})
+
+
+
+socket.on('you-win', data => {
+  body.classList.add("you-win");
+  // alert('you win')
+})
+
+
+
 socket.on('room-created', room => {
   const roomElement = document.createElement('div')
   roomElement.innerText = room
@@ -56,9 +75,11 @@ socket.on('chat-message', data => {
   appendMessage(`${data.name}: ${data.message}`)
 })
 
-socket.on('user-connected', (name, id) => {
- 
-  appendMessage(`${name} connected `)
+socket.on('user-connected', (name, id, user_soc) => {
+
+  user_soc = user_soc
+  appendMessage(`${name} connected`)
+
 })
 
 socket.on('user-disconnected', name => {
@@ -66,21 +87,21 @@ socket.on('user-disconnected', name => {
 })
 socket.on('seq-added', data => {
 
-  playSound(colors[data[data.length-1]])
+  playSound(colors[data[data.length - 1]])
   seq = [3, ...data]
-  if(seq.length%2+1 != Number(userId)){
-    
+  if (seq.length % 2 + 1 != Number(userId)) {
+
     overlay.classList.remove('no-click')
 
   }
-  console.log(seq, 'seq from wildcard',seq.length%2+1 == Number(userId) )
+  console.log(seq, 'seq from wildcard', seq.length % 2 + 1 == Number(userId))
 })
 
-function appendMessage(message) {
-  const messageElement = document.createElement('div')
-  messageElement.innerText = message
-  messageContainer.append(messageElement)
-}
+  function appendMessage(message, type) {
+    const messageElement = document.createElement('div')
+    messageElement.innerHTML = `<p class=${type}>${message}</p>`
+    messageContainer.append(messageElement)
+  }
 
 
 
@@ -99,7 +120,7 @@ colors.forEach(color => {
 
     // }
 
-console.log(seq.length % 2 + 1, 'wild')
+    console.log(seq.length % 2 + 1, 'wild')
     userClickedPattern.push(colors.indexOf(color));
     console.log(userClickedPattern, 'this is userClickedPattern')
     console.log(seq, 'this is seq')
@@ -108,17 +129,17 @@ console.log(seq.length % 2 + 1, 'wild')
 
     if (userClickedPattern.length > seq.length) {
 
-      if(seq.length%2+1 != Number(userId)){
+      if (seq.length % 2 + 1 != Number(userId)) {
         overlay.classList.add('no-click')
-      }else{
+      } else {
         overlay.classList.remove('no-click')
 
       }
-      console.log('adding to socket.........,', seq.length%2+1 != userId)
+      console.log('adding to socket.........,', seq.length % 2 + 1 != userId)
       socket.emit('add-seq', roomName, colors.indexOf(color))
       userClickedPattern = []
-    }else{
-        checkAnswer(userClickedPattern.length-1)
+    } else {
+      checkAnswer(userClickedPattern.length - 1)
     }
 
   });
@@ -138,19 +159,23 @@ function checkAnswer(currentLevel) {
 
 
       //pass
-      score  = score + 100 
+      score = score + 100
       viewScore.innerText = score
 
       console.log('pass')
     }
   } else {
     // fail
-    
+
     socket.emit('del-seq', roomName)
     playSound("wrong");
+
+    socket.emit('won-lost', roomName, userId)
+    appendMessage('you: lost', 'lost-title')
+    overlay.classList.add('no-click')
     body.classList.remove("background");
     body.classList.add("game-over");
-    levelTitle.innerText="Game Over, Click here  to Restart";
+    levelTitle.innerText = "Game Over, Click here  to Restart";
     userClickedPattern = []
     setTimeout(function () {
       body.classList.remove("game-over");

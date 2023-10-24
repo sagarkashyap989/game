@@ -8,7 +8,7 @@ app.set('view engine', 'ejs')
 app.use(express.static('public'))
 app.use(express.urlencoded({ extended: true }))
 
-const rooms = { }
+  const rooms = { }
 
 app.get('/', (req, res) => {
   res.render('index', { rooms: rooms })
@@ -39,6 +39,23 @@ server.listen(3000)
 io.on('connection', socket => {
 
 
+  socket.on('won-lost',(room, userId) => {
+
+    console.log(rooms)
+    console.log(userId, 'won-lost')
+    socket.to(room).broadcast.emit('someone-lost', { message: 'lost', name: rooms[room].users[socket.id] , userId })
+    delete rooms[room].users[socket.id]
+    socket.leave(room)
+    const roo1m = io.sockets.adapter.rooms[room];
+    console.log(roo1m, 'roo1m')
+    const numberOfUsers = roo1m ? roo1m.length : 0;
+    if(numberOfUsers == 1){
+      socket.to(room).broadcast.emit('you-win')
+
+    }
+  })
+
+
   socket.on('add-seq', (room, seq) => {
     // console.log( rooms[room])
     // console.log(room, seq)
@@ -47,7 +64,7 @@ io.on('connection', socket => {
     console.log(rooms)
     socket.to(room).broadcast.emit('seq-added',rooms[room].sequence )
   })
-  socket.on('del-seq', (room, seq) => {
+  socket.on('del-seq', (room) => {
     // console.log( rooms[room])
     // console.log(room, seq)
     rooms[room].sequence = []
@@ -64,7 +81,8 @@ io.on('connection', socket => {
     // console.log(roo1m)
     const numberOfUsers = roo1m ? roo1m.length : 0;
     // console.log(`Users in room ${roo1m}: ${numberOfUsers}`);
-    socket.to(room).broadcast.emit('user-connected', name,numberOfUsers )
+    
+    socket.to(room).broadcast.emit('user-connected', name,numberOfUsers, socket.id )
   })
   socket.on('send-chat-message', (room, message) => {
     socket.to(room).broadcast.emit('chat-message', { message: message, name: rooms[room].users[socket.id] })

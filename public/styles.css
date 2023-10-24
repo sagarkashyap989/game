@@ -566,5 +566,16 @@ HTML CSSResult Skip Results Iframe
 
 
 .no-click{
-  pointer-events: none
+  pointer-events: none;
+  background: #490000;
+}
+
+
+
+.you-win{
+  background-color: green;
+}
+
+.lost-title{
+  color:red
 }
